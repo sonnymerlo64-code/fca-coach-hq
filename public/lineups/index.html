@@ -324,8 +324,9 @@ for(const id of ['reportFrom','reportTo'])$(id).onchange=()=>{if(!$('reportOutpu
 $('exportHistory').onclick=()=>{const rows=filteredHistory(),totals=new Map();for(const r of rows){let t=totals.get(r.playerId)||{name:r.player,games:0,sit:0};t.games++;t.sit+=r.sit;totals.set(r.playerId,t)}if(!totals.size)return alert('No saved games match these dates');const csv=[['Player','Games','Total Sitting Innings'],...[...totals.values()].sort((a,b)=>a.name.localeCompare(b.name)).map(t=>[t.name,t.games,t.sit])].map(row=>row.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='FCA_Sitting_Totals.csv';a.click();URL.revokeObjectURL(a.href)};
 
 // Connection details and refresh credentials persist across app updates on the same origin.
-const CLOUD_DEFAULT={url:'https://kifbwbmrgrauyfdtagdk.supabase.co',key:'sb_publishable_Y3ZCqvQEDSBNrjXm0v44pg_gYevfsTv'};
+let CLOUD_DEFAULT={url:'',key:''};
 const cloudConfig=()=>CLOUD_DEFAULT;
+window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.data?.type!=='FCA_HQ_SESSION')return;const v=e.data.session,c=e.data.config;if(!v?.access_token||!c?.url||!c?.key)return;CLOUD_DEFAULT={url:c.url,key:c.key};storeSession(v);document.getElementById('cloudPanel').hidden=true;if(!cloudDirty)await cloudLoad();});
 const cloudHeaders=()=>{let c=cloudConfig();return {'apikey':c.key,'Authorization':'Bearer '+cloudToken,'Content-Type':'application/json'}};
 const SESSION_KEY='fca_sb_session_v20';
 function storeSession(v){
@@ -413,14 +414,14 @@ window.addEventListener('online',()=>{if(cloudReady&&cloudDirty)cloudSave(false)
 async function restoreCloud(){
  try{
   const c=cloudConfig();
-  // Project connection is embedded; no browser-specific setup required.
+  // Session is supplied by FCA Coach HQ.
   const saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');
   if(saved.access_token){cloudToken=saved.access_token;cloudReady=true;
    if(saved.expires_at<Date.now()+120000)await refreshSession();
    if(cloudDirty){cloudMessage('Signed in. Unsynced local edits detected — review before saving to cloud.');}else await cloudLoad();return}
   const legacy=sessionStorage.getItem('fca_token');
   if(legacy){cloudToken=legacy;cloudReady=true;await cloudLoad();return}
-  disconnect('Connection remembered. Sign in to access shared teams.');
+  disconnect('Waiting for FCA Coach HQ sign-in…');
  }catch(e){disconnect('Could not reconnect automatically. Sign in again; local data is preserved.')}
 }
 restoreCloud();

@@ -1,1 +1,2 @@
-import Shell from '../Shell';export default function Page(){return <Shell><iframe className="module-frame" title="lineups" src="/lineups/index.html"/></Shell>}
+import AuthGate from '../AuthGate';
+import Shell from '../Shell';import LineupFrame from './LineupFrame';export default function Page(){return <AuthGate><Shell><LineupFrame/></Shell></AuthGate>}
