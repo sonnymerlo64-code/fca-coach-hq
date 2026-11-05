@@ -1,0 +1,1 @@
+import Shell from '../Shell';export default function Page(){return <Shell><iframe className="module-frame" title="lineups" src="/lineups/index.html"/></Shell>}

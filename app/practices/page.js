@@ -1,0 +1,1 @@
+import Shell from '../Shell';import Planner from './Planner';import './planner.css';export default function Page(){return <Shell><div className="practice-wrap"><Planner/></div></Shell>}

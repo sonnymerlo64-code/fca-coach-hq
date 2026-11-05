@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function Shell({children}){return <><header className="top"><Link href="/" className="brand">FCA COACH HQ<small>BASEBALL SAN DIEGO</small></Link><nav className="nav"><Link href="/">Dashboard</Link><Link href="/evaluations">Player Evaluation</Link><Link href="/lineups">Lineup Manager</Link><Link href="/practices">Practice Planner</Link></nav></header>{children}</>}
