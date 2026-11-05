@@ -1,23 +1,25 @@
-# FCA Coach HQ — Phase 2 Integration Preview
+# FCA Coach HQ — Phase 3 Integration Candidate
+
+This is a **test build**, not a verified production release. It packages the latest uploaded evaluation, lineup, and practice planner source.
 
 ## Included
-- One Supabase email/password login on the dashboard; original Player Evaluation shares the same Supabase auth session.
-- Lineup Manager receives the logged-in session from the dashboard, with no second login prompt.
-- Practice Planner is behind the same login but **still stores plans locally in the browser**.
-- Player Evaluation new scoring 1–5, Level 1 default, 80% in each of Offense, Defense, Character for certification. Existing evaluations remain in the original 1–8 scale.
-- Original applications remain independent modules. GRIND and Game MGR are excluded.
+- Central Supabase login on the dashboard and application pages; existing session passed to the two embedded legacy tools using a same-origin message. No second email/password prompt.
+- Lineup Manager now reads the configured Supabase project URL and publishable key rather than a hardcoded project, and uses the central session for shared workspace calls.
+- Evaluation uses 1–5 ratings for **new** evaluations, defaults to Level 1, and checks >=80% separately for Offense, Defense, Character. Historical unmarked evaluations are interpreted as 1–8 and editing is blocked to avoid corrupting their scores.
+- Practice Planner remains a separate code module with its existing local persistence.
 
-## Deploy
-Upload all files in this ZIP to the existing `fca-coach-hq` GitHub repository, replacing the Phase 1 files. Keep the original three app deployments unchanged. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in Vercel and redeploy. Use only the publishable/anon key.
+## Deploy cautiously
+1. Keep existing three apps online. Back up your Lineup Manager JSON and Supabase project.
+2. Upload the CONTENTS of this ZIP to the fca-coach-hq GitHub repository; Vercel should build as Next.js.
+3. In Vercel set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` (public key ONLY) for the same FCA project, then redeploy.
+4. Test login, navigation, roster cloud load, saved evaluations, practice planner, logout and a second coach account on a temporary preview deployment before changing production domain.
+5. To approve certifications at 80%, **review and run** `migration-hq-certification-80.sql` in existing FCA Supabase after backup; never rerun old schema migrations.
 
-## Important before certification approvals
-Run `migration-hq-certification-80.sql` in the existing Supabase SQL editor AFTER backing up, because the previous schema requires scores >=90. Do not rerun older migrations.
-
-## Still pending (not represented as complete)
-- True cross-tool synchronized team rosters and grade/age management; lineup still uses its separate JSON workspace.
-- Practice-plan cloud synchronization.
-- Central administrator UI and stronger role-based RLS policies.
-- Historical 1–8 evaluation score trend normalization and comprehensive print-report QA.
-- Full browser and live Vercel/Supabase testing.
-
-This is a test build, not a verified production migration.
+## Remaining limitations — do not claim these are complete
+- **Shared cross-tool roster** is not implemented: Lineup Manager still stores a JSON workspace, Player Evaluation stores relational `pd_players`, and Practice Planner does not use a shared roster.
+- Static HTML files under `/public` can be requested directly. The client-side login gate is NOT a server-side access control boundary. Production requires authenticated server-side route protection and reviewed Supabase RLS.
+- The legacy lineup JSON workspace is last-write-wins; simultaneous coaches can overwrite changes. Export backups and avoid simultaneous editing.
+- Practice plans are still saved locally, not in Supabase.
+- Legacy evaluations do not have a scale marker, so they are treated as 1–8; verify this assumption against existing records.
+- Category score logic and certification migration have not been validated against live Supabase.
+- No live deployment tests performed here. GRIND and Game MGR are excluded.

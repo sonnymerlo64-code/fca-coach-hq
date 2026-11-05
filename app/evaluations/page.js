@@ -1,2 +1,2 @@
-import AuthGate from '../AuthGate';
-import Shell from '../Shell';export default function Page(){return <AuthGate><Shell><iframe className="module-frame" title="evaluations" src="/evaluations/index.html"/></Shell></AuthGate>}
+import AuthGate from '../AuthGate';import Shell from '../Shell';import CoachFrame from '../CoachFrame';
+export default function Page(){return <AuthGate>{session=><Shell><CoachFrame kind="evaluations" session={session}/></Shell>}</AuthGate>}

@@ -123,7 +123,7 @@ html,body,button,input,select,textarea,table,th,td{font-family:Arial,Helvetica,s
 <section class="no-print" id="cloudPanel"><h2>Coach Login & Shared Team Rosters</h2>
 <p class="muted">Sign in to access shared FCA team rosters. Your session reconnects automatically when possible.</p>
 
-<div class="controls" style="margin-top:12px"><button class="secondary" id="toggleCloudConfig" title="Administrator setup only">Admin Settings</button><div><label>Coach Email</label><input id="coachEmail" type="email" placeholder="coach@example.com"></div><div><label>Password</label><input id="coachPassword" type="password"></div><button id="signIn">Sign In</button><button class="secondary" id="signUp">Create Coach Account</button><button class="secondary" id="signOut">Sign Out</button><button id="cloudSave">Save to Cloud</button><button class="secondary" id="cloudLoad">Refresh Shared Teams</button></div>
+<div class="controls" style="margin-top:12px"><button class="secondary" id="toggleCloudConfig" title="Administrator setup only">Admin Settings</button><div style="display:none"><label>Coach Email</label><input id="coachEmail" type="email" placeholder="coach@example.com"></div><div style="display:none"><label>Password</label><input id="coachPassword" type="password"></div><button id="signIn" style="display:none">Sign In</button><button class="secondary" id="signUp" style="display:none">Create Coach Account</button><button class="secondary" id="signOut" style="display:none">Sign Out</button><button id="cloudSave">Save to Cloud</button><button class="secondary" id="cloudLoad">Refresh Shared Teams</button></div>
 <div id="cloudStatus" class="warning">Checking cloud connection…</div></section>
 <section class="no-print"><h2>Teams & Rosters</h2><div class="controls"><div><label>Current Team</label><select id="team"></select></div><div><label>New Team Name</label><input id="teamName" placeholder="FCA 7th Grade"></div><div><label>Grade</label><select id="grade"><option>4th</option><option>5th</option><option>6th</option><option>7th</option><option>8th</option></select></div><button id="addTeam">Add Team</button><button class="danger" id="deleteTeam">Delete Team</button></div><p class="muted">Rosters and game plans are saved in this browser. Export a backup before switching devices. Shared coach accounts require a connected database in a later release.</p><div class="controls"><button class="secondary" id="exportData">Export Backup</button><button class="secondary" id="importData">Import Backup</button><input id="backupFile" type="file" accept=".json" hidden><button class="secondary" id="csvButton">Import Roster CSV</button><input id="csvFile" type="file" accept=".csv" hidden></div></section>
 <section class="no-print"><h2>Roster & Eligible Positions</h2><p class="muted">Click Select Positions to check the positions each player can play. Select All allows every position.</p><div class="controls"><div><label>Player Name</label><input id="playerName" placeholder="First Last"></div><div><label>Jersey #</label><input id="jersey" type="number" min="0" max="99"></div><div><label>Eligible Positions</label><span id="addPositionsPicker"></span></div><button id="addPlayer">Add Player</button></div><div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>#</th><th>Player</th><th>Eligible Positions</th><th>Actions</th></tr></thead><tbody id="rosterBody"></tbody></table></div></section>
@@ -326,7 +326,6 @@ $('exportHistory').onclick=()=>{const rows=filteredHistory(),totals=new Map();fo
 // Connection details and refresh credentials persist across app updates on the same origin.
 let CLOUD_DEFAULT={url:'',key:''};
 const cloudConfig=()=>CLOUD_DEFAULT;
-window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.data?.type!=='FCA_HQ_SESSION')return;const v=e.data.session,c=e.data.config;if(!v?.access_token||!c?.url||!c?.key)return;CLOUD_DEFAULT={url:c.url,key:c.key};storeSession(v);document.getElementById('cloudPanel').hidden=true;if(!cloudDirty)await cloudLoad();});
 const cloudHeaders=()=>{let c=cloudConfig();return {'apikey':c.key,'Authorization':'Bearer '+cloudToken,'Content-Type':'application/json'}};
 const SESSION_KEY='fca_sb_session_v20';
 function storeSession(v){
@@ -414,17 +413,21 @@ window.addEventListener('online',()=>{if(cloudReady&&cloudDirty)cloudSave(false)
 async function restoreCloud(){
  try{
   const c=cloudConfig();
-  // Session is supplied by FCA Coach HQ.
+  // Project connection is embedded; no browser-specific setup required.
   const saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');
   if(saved.access_token){cloudToken=saved.access_token;cloudReady=true;
    if(saved.expires_at<Date.now()+120000)await refreshSession();
    if(cloudDirty){cloudMessage('Signed in. Unsynced local edits detected — review before saving to cloud.');}else await cloudLoad();return}
   const legacy=sessionStorage.getItem('fca_token');
   if(legacy){cloudToken=legacy;cloudReady=true;await cloudLoad();return}
-  disconnect('Waiting for FCA Coach HQ sign-in…');
+  disconnect('Connection remembered. Sign in to access shared teams.');
  }catch(e){disconnect('Could not reconnect automatically. Sign in again; local data is preserved.')}
 }
-restoreCloud();
+window.addEventListener('message',async event=>{
+ if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='FCA_HQ_SESSION')return;
+ try{const r=await fetch('/api/public-config',{cache:'no-store'});if(!r.ok)throw Error('Database settings unavailable');const cfg=await r.json();if(!cfg.configured)throw Error('Database connection not configured');CLOUD_DEFAULT={url:cfg.url,key:cfg.key};storeSession(event.data);if(cloudDirty){cloudMessage('Local changes are not yet synced. Review before saving to cloud.')}else await cloudLoad();}
+ catch(e){cloudMessage('Cloud connection failed: '+e.message)}
+});
 // Refresh proactively so a coach working for hours stays connected.
 setInterval(async()=>{
  if(!cloudReady)return;
