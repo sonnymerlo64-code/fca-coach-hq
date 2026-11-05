@@ -23,3 +23,7 @@ This is a **test build**, not a verified production release. It packages the lat
 - Legacy evaluations do not have a scale marker, so they are treated as 1–8; verify this assumption against existing records.
 - Category score logic and certification migration have not been validated against live Supabase.
 - No live deployment tests performed here. GRIND and Game MGR are excluded.
+
+
+## Build-error fix (2026-11-05)
+The /evaluations and /lineups page components are now client components, so their AuthGate render-function children do not cross a server/client serialization boundary. This targets the Vercel error `Functions cannot be passed directly to Client Components`. Rebuild on Vercel; full production build could not be run in this environment.
