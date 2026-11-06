@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FCA Baseball | Lineup & Rotation Manager V23</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#171717;background:#f7f5ee}*{box-sizing:border-box}body{margin:0}header{background:#111111;color:#f5c842;padding:20px 3vw;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:24px;margin:0}header small{color:#f4dc86}main{max-width:1450px;margin:auto;padding:22px}[hidden]{display:none!important}.roster-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px}.roster-checks label{display:flex;align-items:center;gap:8px;background:#fff9e6;padding:9px;border:1px solid #ddc77d;border-radius:6px}.roster-checks input{accent-color:#c69a1d}[hidden]{display:none!important}section{background:white;border:1px solid #dfd5b3;border-radius:12px;margin-bottom:18px;padding:20px;box-shadow:0 2px 8px #162b4610}h2{font-size:19px;margin:0 0 16px}h3{font-size:16px}label{font-size:13px;font-weight:700;display:block;margin-bottom:5px}input,select,button{font:inherit;border-radius:7px;padding:10px;border:1px solid #c8b982;max-width:100%}button{background:#d4a928;color:#111111;border:0;cursor:pointer;font-weight:700}button.secondary{background:#fff4ca;color:#181818}button.danger{background:#9c2437}button:disabled{opacity:.5}.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.controls>div{min-width:125px;flex:1}.controls>button{flex:none}.muted{color:#65738a;font-size:13px}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #d8cc9d;padding:7px;text-align:left;vertical-align:middle}th{background:#1b1b1b;color:#f7d567}td input,td select{width:100%;padding:7px;min-width:85px}td .small{min-width:0}tr:nth-child(even){background:#fffcf2}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.pill{display:inline-block;background:#fff4ca;border-radius:99px;padding:5px 10px;font-size:12px}.warning{background:#fff4dd;border:1px solid #f0cf7a;padding:10px;margin-top:10px;border-radius:8px}.success{background:#e6f4eb;padding:10px;margin-top:10px;border-radius:8px}.row-actions{display:flex;gap:6px;flex-wrap:wrap}.row-actions button{padding:7px}.print-only{display:none}#status{font-size:13px;color:#f7d567}@media(max-width:800px){.grid{grid-template-columns:1fr}main{padding:12px}section{padding:13px}}@media print{
+@page{size:portrait;margin:0.42in}
+html,body{background:#fff!important;color:#111!important;margin:0!important;padding:0!important}
+header,main>section,main>.grid,.no-print{display:none!important}
+main{display:block!important;margin:0!important;padding:0!important;max-width:none!important}
+#printSheet{display:block!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;width:100%!important}
+#printSheet .print-team{text-align:center;font-size:19pt;font-weight:800;margin:0 0 18px}
+#printSheet .print-rotation{width:100%;table-layout:fixed;border-collapse:collapse;margin:0 0 18px}
+#printSheet .print-rotation th,#printSheet .print-rotation td{border:1px solid #333!important;padding:7px 3px!important;color:#111!important;text-align:center!important;vertical-align:middle!important;font-size:8pt!important;font-weight:700!important;overflow-wrap:normal;word-break:normal;background:white!important}
+#printSheet .print-rotation thead th{background:#e6e6e6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:8pt!important}
+#printSheet .print-rotation tbody tr{height:43px;break-inside:avoid}
+#printSheet .print-rotation th:first-child{width:6%}
+#printSheet .print-rotation th:last-child{width:19%}
+#printSheet .print-rotation td:last-child{font-size:7.4pt!important}
+#printSheet .print-batting-title{font-size:13pt;font-weight:800;margin:14px 0 10px 8px}
+#printSheet .print-batting{display:grid;grid-template-columns:1fr 1fr;column-gap:36px;padding:0 15px}
+#printSheet .print-batting p{font-size:10pt;font-weight:700;margin:0 0 11px;break-inside:avoid}
+#printSheet .print-notes{text-align:center;font-size:8.5pt;font-weight:700;margin:12px 0 0;line-height:1.5}
+#printSheet .print-sitting-title{font-size:10pt;font-weight:800;text-align:center;margin:12px 0 6px}
+#printSheet .print-sitting-summary{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:4px;font-size:8.5pt;font-weight:700;margin:0 12px;break-inside:avoid}
+#printSheet .print-sitting-summary div{break-inside:avoid}
+}
+
+/* FCA standard typography: Arial on screen and in printed game sheets */
+html,body,button,input,select,textarea,table,th,td{font-family:Arial,Helvetica,sans-serif!important}
+@media print{html,body,body *,table,th,td{font-family:Arial,Helvetica,sans-serif!important}}
+
+.position-picker{position:relative;display:inline-block;min-width:150px;max-width:100%}
+.position-picker>summary{cursor:pointer;list-style:none;border:1px solid #c8b982;border-radius:7px;padding:9px 11px;background:#fff;min-height:37px;font-size:13px;font-weight:700}
+.position-picker>summary::-webkit-details-marker{display:none}
+.position-picker>summary::after{content:" ▾";float:right}
+.position-picker[open]>summary{border-color:#d4a928;background:#fff9e6}
+.position-menu{position:absolute;z-index:50;top:100%;left:0;background:white;border:1px solid #c8b982;box-shadow:0 8px 22px #0003;border-radius:8px;padding:11px;min-width:225px;max-width:290px}
+.position-menu .position-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.position-menu label{display:flex;align-items:center;gap:5px;padding:5px;font-size:13px;white-space:nowrap;cursor:pointer}
+.position-menu input{width:auto;min-width:0;accent-color:#d4a928}
+.position-menu button{font-size:12px;padding:7px 9px;margin-top:8px}
+@media(max-width:800px){.position-menu{left:auto;right:0}}
+[hidden]{display:none!important}
+/* V24: fit every printed player name within its assigned cell */
+@media print{
+ #printSheet, #printSheet *{font-family:Arial,Helvetica,sans-serif!important;box-sizing:border-box!important}
+ #printSheet .print-rotation{table-layout:fixed!important;width:100%!important}
+ #printSheet .print-rotation th,#printSheet .print-rotation td{padding:5px 2px!important;overflow:hidden!important;overflow-wrap:anywhere!important;word-break:normal!important;white-space:normal!important;line-height:1.13!important}
+ #printSheet .print-rotation td .print-fit-name{display:block!important;max-width:100%!important;overflow-wrap:anywhere!important;word-break:normal!important;hyphens:auto!important;font-weight:700!important;line-height:1.13!important}
+ #printSheet .print-rotation th:first-child{width:5%!important}
+ #printSheet .print-rotation th:last-child{width:23%!important}
+ #printSheet .print-rotation tbody tr{height:auto!important;min-height:42px!important}
+ #printSheet .print-rotation tbody td{height:42px!important}
+ #printSheet .print-batting{min-width:0!important;column-gap:22px!important;padding:0 8px!important}
+ #printSheet .print-batting p{display:flex!important;gap:5px!important;min-width:0!important;font-size:9.5pt!important;line-height:1.2!important;overflow-wrap:anywhere!important;word-break:normal!important}
+ #printSheet .print-batting .batting-number{flex:0 0 20px!important}
+ #printSheet .print-batting .batting-name{min-width:0!important;flex:1!important;overflow-wrap:anywhere!important}
+}
+
+/* V25: never break a player's surname across two lines */
+@media print {
+ #printSheet .print-rotation td{padding:6px 1px!important;overflow-wrap:normal!important;word-break:normal!important}
+ #printSheet .print-rotation .print-fit-name{display:inline-block!important;white-space:nowrap!important;max-width:none!important;font-family:Arial,Helvetica,sans-serif!important;font-weight:700!important;letter-spacing:-.15px!important;line-height:1.15!important}
+ #printSheet .print-rotation .print-sit-item{display:inline-block!important;white-space:nowrap!important;font-family:Arial,Helvetica,sans-serif!important;font-weight:700!important;font-size:7.4pt;line-height:1.3}
+ #printSheet .print-rotation .print-sit-comma{white-space:normal!important}
+}
+
+/* V26: readable print labels; compress width rather than shrinking type */
+@media print{
+ @page{size:portrait;margin:0.28in}
+ #printSheet .print-rotation th:first-child{width:5%!important}
+ #printSheet .print-rotation th:last-child{width:17%!important}
+ #printSheet .print-rotation th,#printSheet .print-rotation td{padding:5px 1px!important}
+ #printSheet .print-rotation .print-fit-name{
+  position:relative!important;left:50%!important;
+  display:inline-block!important;width:max-content!important;
+  white-space:nowrap!important;max-width:none!important;
+  font:700 8.5pt/1.15 Arial,Helvetica,sans-serif!important;
+  letter-spacing:-.2px!important;
+  transform:translateX(-50%) scaleX(var(--fit-scale,1))!important;
+  transform-origin:center center!important;
+ }
+ #printSheet .print-rotation .print-sit-item{
+  font:700 8pt/1.25 Arial,Helvetica,sans-serif!important;
+  letter-spacing:-.15px!important;
+ }
+ #printSheet .print-rotation tbody td{height:42px!important}
+}
+
+/* V27: larger readable names with full-height letters; never break surnames */
+@media print{
+ @page{size:letter portrait;margin:0.20in}
+ #printSheet{width:100%!important;max-width:none!important}
+ #printSheet .print-rotation{width:100%!important;margin-bottom:14px!important}
+ #printSheet .print-rotation th:first-child{width:4.5%!important}
+ #printSheet .print-rotation th:last-child{width:16%!important}
+ #printSheet .print-rotation th,#printSheet .print-rotation td{padding:6px 0!important;overflow:hidden!important}
+ #printSheet .print-rotation tbody td{height:54px!important}
+ #printSheet .print-rotation .print-fit-name{font:700 11pt/1.15 Arial,Helvetica,sans-serif!important;letter-spacing:-.1px!important;white-space:nowrap!important}
+ #printSheet .print-rotation .print-sit-item{font:700 9.5pt/1.2 Arial,Helvetica,sans-serif!important;white-space:nowrap!important}
+}
+
+/* V32: readable print without clipping or overlapping adjacent position boxes */
+@media print {
+ #printSheet .print-rotation .print-fit-name {font:700 9pt/1.15 Arial,Helvetica,sans-serif!important;letter-spacing:-.15px!important;}
+ #printSheet .print-rotation .print-sit-item {font:700 8pt/1.2 Arial,Helvetica,sans-serif!important;}
+ #printSheet .print-rotation th,#printSheet .print-rotation td {overflow:hidden!important;}
+}
+</style>
+<style>
+/* V33: balanced compact names with clear cell boundaries */
+@media print {
+ #printSheet .print-rotation .print-fit-name {font:700 7.5pt/1.2 Arial,Helvetica,sans-serif!important;letter-spacing:-.1px!important;}
+ #printSheet .print-rotation .print-sit-item {font:700 7pt/1.2 Arial,Helvetica,sans-serif!important;}
+ #printSheet .print-rotation tbody td {overflow:hidden!important;padding:5px 1px!important;}
+ #printSheet .print-rotation th:last-child {width:18%!important;}
+ #printSheet .print-rotation th:first-child {width:5%!important;}
+}
+</style>
+</head><body>
+<header><div><h1>FCA BASEBALL</h1><small>Lineup & Defensive Rotation Manager</small></div><div id="status">Saved on this device</div></header>
+<main><div id="printSheet" class="print-only"></div>
+<section class="no-print" id="cloudPanel"><h2>Coach Login & Shared Team Rosters</h2>
+<p class="muted">Sign in to access shared FCA team rosters. Your session reconnects automatically when possible.</p>
+
+<div class="controls" style="margin-top:12px"><button class="secondary" id="toggleCloudConfig" title="Administrator setup only">Admin Settings</button><div style="display:none"><label>Coach Email</label><input id="coachEmail" type="email" placeholder="coach@example.com"></div><div style="display:none"><label>Password</label><input id="coachPassword" type="password"></div><button id="signIn" style="display:none">Sign In</button><button class="secondary" id="signUp" style="display:none">Create Coach Account</button><button class="secondary" id="signOut" style="display:none">Sign Out</button><button id="cloudSave">Save to Cloud</button><button class="secondary" id="cloudLoad">Refresh Shared Teams</button></div>
+<div id="cloudStatus" class="warning">Checking cloud connection…</div></section>
+<section class="no-print"><h2>Teams & Rosters</h2><div class="controls"><div><label>Current Team</label><select id="team"></select></div><div><label>New Team Name</label><input id="teamName" placeholder="FCA 7th Grade"></div><div><label>Grade</label><select id="grade"><option>4th</option><option>5th</option><option>6th</option><option>7th</option><option>8th</option></select></div><button id="addTeam">Add Team</button><button class="danger" id="deleteTeam">Delete Team</button></div><p class="muted">Rosters and game plans are saved in this browser. Export a backup before switching devices. Shared coach accounts require a connected database in a later release.</p><div class="controls"><button class="secondary" id="exportData">Export Backup</button><button class="secondary" id="importData">Import Backup</button><input id="backupFile" type="file" accept=".json" hidden><button class="secondary" id="csvButton">Import Roster CSV</button><input id="csvFile" type="file" accept=".csv" hidden></div></section>
+<section class="no-print"><h2>Roster & Eligible Positions</h2><p class="muted">Click Select Positions to check the positions each player can play. Select All allows every position.</p><div class="controls"><div><label>Player Name</label><input id="playerName" placeholder="First Last"></div><div><label>Jersey #</label><input id="jersey" type="number" min="0" max="99"></div><div><label>Eligible Positions</label><span id="addPositionsPicker"></span></div><button id="addPlayer">Add Player</button></div><div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>#</th><th>Player</th><th>Eligible Positions</th><th>Actions</th></tr></thead><tbody id="rosterBody"></tbody></table></div></section>
+<section class="no-print"><h2>Game Roster — Maximum 13 Players</h2><p class="muted">Choose up to 13 players from the team's full saved roster for this game. The full team roster is not limited to 13. Only selected players appear in the batting order, pitching choices, defensive rotation and sitting report.</p><div id="gameRosterChoices" class="roster-checks"></div><div id="gameRosterCount" class="muted"></div></section>
+<section class="no-print"><h2>Game Setup</h2><div class="controls"><div><label>Game Name</label><input id="gameName" placeholder="Game 1 vs Opponent"></div><div><label>Innings</label><select id="innings"><option>4</option><option>5</option><option selected>6</option><option>7</option></select></div><div><label>Defensive Changes</label><select id="frequency"><option value="1">Every Inning</option><option value="2">Every 2 Innings</option><option value="manual">Manual — Coach Assigns Each Inning</option></select></div><div><label>Maximum Sit Innings</label><input id="maxSit" type="number" min="0" max="7" value="2"></div><button id="generate">Generate Rotation</button></div><div class="controls" style="margin-top:12px"><div><label>Game Date</label><input id="historyDate" type="date"></div><button id="archiveGame">Save Game</button><button class="secondary" id="newGame">New Game</button><button class="secondary" id="openSavedGames">Saved Games</button></div><p id="historyStatus" class="muted"></p><p class="muted">Pitchers are assigned by inning. Position locks override normal rotation. If a lock conflicts with another assignment, the generator will flag it.</p></section>
+<div class="grid"><section><h2>Batting Order</h2><p class="muted no-print">Choose a player in any batting-order slot to swap positions, or use the arrows.</p><div class="tablewrap"><table><thead><tr><th>Order</th><th>Player</th><th class="no-print">Move</th></tr></thead><tbody id="battingBody"></tbody></table></div></section>
+<section><h2>Pitching Plan</h2><div class="tablewrap"><table><thead><tr><th>Inning</th><th>Pitcher</th><th>Catcher</th></tr></thead><tbody id="pitchBody"></tbody></table></div></section></div>
+<section><div class="controls" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Defensive Rotation</h2><button class="secondary no-print" id="print">Print Game Roster</button></div><p class="muted no-print">Edit any assignment directly. Changes immediately update sitting totals. Selecting a player twice in an inning will produce a warning.</p><div class="print-only" id="printTitle"></div><div class="tablewrap"><table id="defenseTable"><thead></thead><tbody></tbody></table></div><div id="warnings"></div></section>
+<section><h2>Playing Time & Sitting Summary</h2><p class="muted no-print">Set desired sitting innings for each player (0–7 depending on game length), then click Generate Rotation. Targets are exact requirements when you click Generate Rotation; the app will warn if no valid rotation exists. You can also edit the defensive grid manually.</p><div class="tablewrap"><table><thead><tr><th>Player</th><th class="no-print">Target Sit Innings</th><th>Fielding Innings</th><th>Sitting Innings</th><th>Pitching</th><th>Catching</th><th>Innings Sitting</th></tr></thead><tbody id="summaryBody"></tbody></table></div></section>
+<section class="no-print"><h2>Sitting Reports & Saved Games</h2><p class="muted">Run a sitting report by date or review and delete previously saved games.</p><div class="controls"><div><label>From Date</label><input id="reportFrom" type="date"></div><div><label>To Date</label><input id="reportTo" type="date"></div><button id="runSitReport">Run Sitting Report</button><button class="secondary" id="manageGames">Manage Saved Games</button><button class="secondary" id="exportHistory">Download Report CSV</button></div><div id="savedGamesPanel" hidden><h3>Saved Games — Open, Edit or Delete</h3><p class="muted">The latest saved game opens automatically when you return to a team. Use Open / Edit to load a different saved game with its exact rotations. Deleting a game removes it from sitting totals.</p><div class="tablewrap"><table><thead><tr><th>Date</th><th>Game</th><th>Players</th><th>Innings</th><th>Saved</th><th>Actions</th></tr></thead><tbody id="savedGamesRows"></tbody></table></div></div><div id="reportOutput" hidden><h3>Total Sitting Time by Player</h3><div class="tablewrap"><table><thead><tr><th>Player</th><th>Games</th><th>Total Innings Sitting</th></tr></thead><tbody id="historyRows"></tbody></table></div><div id="reportTotals" style="margin-top:10px;font-weight:bold"></div></div></section>
+</main>
+<script>
+const POS=['P','C','1B','2B','3B','SS','LF','CF','RF'],KEY='fca_lineup_v1';
+const uid=()=>Math.random().toString(36).slice(2,10);
+const demo=[{id:uid(),name:'FCA 7th Grade',grade:'7th',players:[],games:[]}];
+let state;try{state=JSON.parse(localStorage.getItem(KEY))}catch{};if(!state||!Array.isArray(state.teams))state={teams:demo,teamId:demo[0].id};
+let currentGame=null;
+const $=id=>document.getElementById(id);
+const team=()=>state.teams.find(t=>t.id===state.teamId)||state.teams[0];
+let cloudToken=null,cloudReady=false,cloudTimer=null,cloudBusy=false,cloudDirty=false,cloudRefreshPromise=null;
+const save=()=>{cloudDirty=true;localStorage.setItem(KEY,JSON.stringify(state));$('status').textContent=cloudReady?'Saving shared teams…':'NOT SYNCED — sign in to share';if(cloudReady){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudSave(false),900)}};
+
+const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const allowed=(p,pos)=>{const a=String(p.positions||'').toUpperCase().replace(/\s/g,'');return a==='ALL'||a.split(',').includes(pos)};
+function gamePlayers(){const g=currentGame;if(!g)return [];if(!Array.isArray(g.selectedPlayers)){g.selectedPlayers=team().players.slice(0,13).map(p=>p.id)}return team().players.filter(p=>g.selectedPlayers.includes(p.id))}
+function renderGameRoster(){const g=currentGame;if(!g)return;const selected=new Set(gamePlayers().map(p=>p.id));$('gameRosterChoices').innerHTML=team().players.map(p=>`<label><input type="checkbox" data-roster-id="${p.id}" ${selected.has(p.id)?'checked':''} ${!selected.has(p.id)&&selected.size>=13?'disabled':''}>${escapeHTML(p.name)}</label>`).join('');$('gameRosterCount').textContent=`${selected.size} of 13 selected${selected.size<9?' — At least 9 players required to fill all defensive positions':''}`;}
+$('gameRosterChoices').onchange=e=>{const id=e.target.dataset.rosterId;if(!id)return;const g=currentGame;let ids=gamePlayers().map(p=>p.id);if(e.target.checked){if(ids.length>=13){e.target.checked=false;return alert('Maximum 13 players per game')}ids.push(id)}else{ids=ids.filter(x=>x!==id)}g.selectedPlayers=ids;g.batting=g.batting.filter(x=>ids.includes(x));for(let i=0;i<g.innings;i++){if(!ids.includes(g.pitch[i]))delete g.pitch[i];if(!ids.includes(g.catchers[i]))delete g.catchers[i];for(let pos of POS)if(g.defense[i]&&!ids.includes(g.defense[i][pos]))delete g.defense[i][pos]}save();renderGame();renderHistory()};
+function restoreSavedGame(g){
+ return {id:uid(),name:g.name||'Game',innings:g.innings||6,frequency:g.frequency??1,maxSit:g.maxSit??2,
+ batting:[...(g.batting||[])],pitch:structuredClone(g.pitch||{}),catchers:structuredClone(g.catchers||{}),
+ defense:structuredClone(g.defense||{}),selectedPlayers:[...(g.selectedPlayers||g.players?.map(p=>p.id)||[])],sitTargets:structuredClone(g.sitTargets||{})};
+}
+function setupGame(){
+ editingArchiveId=null;const t=team();if(!t)return;
+ const latest=[...(t.history||[])].sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')))[0];
+ if(latest){currentGame=restoreSavedGame(latest);editingArchiveId=latest.id;if($('historyDate'))$('historyDate').value=latest.date||'';
+ if($('historyStatus'))$('historyStatus').textContent=`Reopened saved game: ${latest.name} (${latest.date||'no date'}). Select Saved Games to open another game.`;
+ }else{currentGame=t.games?.[0]||{id:uid(),name:'Game 1',innings:6,frequency:1,maxSit:2,batting:t.players.map(p=>p.id),pitch:{},catchers:{},defense:{}};
+ if($('historyStatus'))$('historyStatus').textContent='No saved games for this team yet.';}
+ t.games=[currentGame];
+}
+function renderTeams(){let t=team();$('team').innerHTML=state.teams.map(x=>`<option value="${x.id}">${escapeHTML(x.name)} (${x.grade})</option>`).join('');if(t){state.teamId=t.id;$('team').value=t.id}renderRoster();setupGame();renderGame();renderHistory();}
+const POSITION_CHOICES=['P','C','1B','2B','3B','SS','LF','CF','RF'];
+let newPlayerPositions='ALL';
+function normalizedPositions(value){const v=String(value||'ALL').toUpperCase().replace(/\s/g,'');if(v==='ALL')return 'ALL';const arr=POSITION_CHOICES.filter(p=>v.split(',').includes(p));return arr.length===POSITION_CHOICES.length?'ALL':arr.join(',')}
+function positionPicker(value,id){const current=normalizedPositions(value);const selected=current==='ALL'?POSITION_CHOICES:current.split(',');const label=current==='ALL'?'All Positions':selected.length?selected.join(', '):'Select Positions';return `<details class="position-picker" data-picker="${id}"><summary>${escapeHTML(label)}</summary><div class="position-menu"><div class="position-options">${POSITION_CHOICES.map(pos=>`<label><input type="checkbox" data-position="${pos}" ${selected.includes(pos)?'checked':''}>${pos}</label>`).join('')}</div><button type="button" class="secondary" data-position-all="1">Select All</button> <button type="button" class="secondary" data-position-clear="1">Clear</button></div></details>`}
+function renderAddPositions(){ $('addPositionsPicker').innerHTML=positionPicker(newPlayerPositions,'new') }
+function renderRoster(){let t=team();$('rosterBody').innerHTML=t.players.map(p=>`<tr><td><input class="small" data-id="${p.id}" data-field="number" value="${escapeHTML(p.number)}"></td><td><input data-id="${p.id}" data-field="name" value="${escapeHTML(p.name)}"></td><td>${positionPicker(p.positions,p.id)}</td><td><button class="danger" data-remove="${p.id}">Remove</button></td></tr>`).join('')}
+function handlePositionClick(e){const picker=e.target.closest('.position-picker');if(!picker)return false;const all=e.target.closest('[data-position-all]'),clear=e.target.closest('[data-position-clear]');if(!all&&!clear&&!e.target.matches('[data-position]'))return false;if(all||clear){picker.querySelectorAll('[data-position]').forEach(cb=>cb.checked=!!all)}const chosen=POSITION_CHOICES.filter(pos=>picker.querySelector(`[data-position="${pos}"]`).checked);const value=chosen.length===POSITION_CHOICES.length?'ALL':chosen.join(',');const id=picker.dataset.picker;if(id==='new')newPlayerPositions=value;else{const p=team().players.find(p=>p.id===id);if(p){p.positions=value;save();renderGame();renderHistory()}}picker.querySelector('summary').textContent=value==='ALL'?'All Positions':value||'Select Positions';return true}
+$('addPositionsPicker').addEventListener('change',handlePositionClick);$('addPositionsPicker').addEventListener('click',handlePositionClick);
+$('rosterBody').addEventListener('change',e=>{if(e.target.matches('[data-position]'))handlePositionClick(e)});
+$('rosterBody').addEventListener('click',e=>{if(e.target.closest('[data-position-all],[data-position-clear]'))handlePositionClick(e)});
+
+function playerOptions(selected,nullable=true){return (nullable?'<option value="">— Unassigned —</option>':'')+gamePlayers().map(p=>`<option value="${p.id}" ${p.id===selected?'selected':''}>${escapeHTML(p.name)}</option>`).join('')}
+function renderGame(){let g=currentGame;if(!g)return;$('generate').textContent=g.frequency==='manual'?'Manual Mode — Use Grid':'Generate Rotation';$('gameName').value=g.name;$('innings').value=g.innings;$('frequency').value=g.frequency;$('maxSit').value=g.maxSit;renderGameRoster();g.sitTargets??={};g.batting=g.batting.filter(id=>gamePlayers().some(p=>p.id===id));for(const p of gamePlayers())if(!g.batting.includes(p.id))g.batting.push(p.id);$('battingBody').innerHTML=g.batting.map((id,i)=>{let p=team().players.find(p=>p.id===id);return `<tr><td>${i+1}</td><td><select data-batting-slot="${i}">${g.batting.map(x=>`<option value="${x}" ${x===id?'selected':''}>${escapeHTML(team().players.find(p=>p.id===x)?.name)}</option>`).join('')}</select></td><td class="no-print"><div class="row-actions"><button class="secondary" data-move="${i}" data-dir="-1">↑</button><button class="secondary" data-move="${i}" data-dir="1">↓</button></div></td></tr>`}).join('');$('pitchBody').innerHTML=Array.from({length:g.innings},(_,i)=>`<tr><td>${i+1}</td><td><select data-pitch="${i}">${playerOptions(g.pitch[i])}</select></td><td><select data-catch="${i}">${playerOptions(g.catchers[i])}</select></td></tr>`).join('');renderDefense();}
+function renderDefense(){let g=currentGame;if(!g)return;$('printTitle').textContent=`${team().name} — ${g.name} — ${g.innings} Innings`;$('defenseTable').querySelector('thead').innerHTML='<tr><th>Position</th>'+Array.from({length:g.innings},(_,i)=>`<th>Inning ${i+1}</th>`).join('')+'</tr>';$('defenseTable').querySelector('tbody').innerHTML=POS.concat(['SIT']).map(pos=>`<tr><th>${pos}</th>`+Array.from({length:g.innings},(_,i)=>{let d=g.defense[i]||{},ids=pos==='SIT'?gamePlayers().filter(p=>!Object.values(d).includes(p.id)).map(p=>p.name).join(', '):null;return `<td>${pos==='SIT'?escapeHTML(ids||'—'):`<select data-inning="${i}" data-pos="${pos}">${playerOptions(d[pos])}</select>`}</td>`}).join('')+'</tr>').join('');let warnings=[];let sums={};for(const p of gamePlayers())sums[p.id]={field:0,sit:0,pitch:0,catch:0,sitInnings:[]};for(let i=0;i<g.innings;i++){let d=g.defense[i]||{},assigned=Object.values(d).filter(Boolean),duplicates=assigned.filter((x,j)=>assigned.indexOf(x)!==j);if(duplicates.length)warnings.push(`Inning ${i+1}: player assigned to more than one position.`);for(const pos of POS){let id=d[pos];let p=team().players.find(p=>p.id===id);if(p&&!allowed(p,pos)&&!((pos==='P'&&g.pitch[i]===id)||(pos==='C'&&g.catchers[i]===id)))warnings.push(`Inning ${i+1}: ${p.name} is not eligible for ${pos}.`);if(id&&!p)warnings.push(`Inning ${i+1}: missing player at ${pos}.`);if(!id)warnings.push(`Inning ${i+1}: ${pos} is unassigned.`)}if(g.pitch[i]&&d.P!==g.pitch[i])warnings.push(`Inning ${i+1}: assigned pitcher differs from pitching plan.`);if(g.catchers[i]&&d.C!==g.catchers[i])warnings.push(`Inning ${i+1}: assigned catcher differs from catching plan.`);for(const p of gamePlayers()){if(assigned.includes(p.id)){sums[p.id].field++;if(d.P===p.id)sums[p.id].pitch++;if(d.C===p.id)sums[p.id].catch++}else{sums[p.id].sit++;sums[p.id].sitInnings.push(i+1)}}}
+$('summaryBody').innerHTML=gamePlayers().map(p=>{let s=sums[p.id];if(s.sit>g.maxSit)warnings.push(`${p.name} sits ${s.sit} innings (limit ${g.maxSit}).`);return `<tr><td>${escapeHTML(p.name)}</td><td class="no-print"><input type="number" min="0" max="${g.innings}" data-sit-target="${p.id}" value="${g.sitTargets?.[p.id]??''}" placeholder="Auto" style="width:76px"></td><td>${s.field}</td><td>${s.sit}</td><td>${s.pitch}</td><td>${s.catch}</td><td>${s.sitInnings.join(', ')||'—'}</td></tr>`}).join('');for(const p of gamePlayers()){let target=g.sitTargets?.[p.id];if(target!==undefined&&Number(target)!==sums[p.id].sit)warnings.push(`${p.name}: target ${target} sitting innings, assigned ${sums[p.id].sit}.`)}$('warnings').innerHTML=warnings.length?`<div class="warning"><strong>Review ${warnings.length} issue(s):</strong><ul>${[...new Set(warnings)].slice(0,30).map(w=>`<li>${escapeHTML(w)}</li>`).join('')}</ul></div>`:'<div class="success">No position, pitcher, or sitting-limit conflicts detected.</div>'}
+function generate(){
+ const g=currentGame,players=gamePlayers(),n=g.innings;
+ if(g.frequency==='manual'){alert('Manual mode: assign players in the defensive grid.');return}
+ if(players.length<9){alert('At least 9 selected players are required.');return}
+ const targets=g.sitTargets||{}, fixed=players.filter(p=>targets[p.id]!==undefined), benchCount=players.length-9;
+ const requiredTotal=benchCount*n, targetSum=fixed.reduce((a,p)=>a+Number(targets[p.id]),0);
+ if(targetSum>requiredTotal){alert(`Impossible sitting targets: requested ${targetSum} total sitting innings but only ${requiredTotal} are available. No changes made.`);return}
+ const locks=Array.from({length:n},(_,i)=>({P:g.pitch[i]||'',C:g.catchers[i]||''}));
+ for(let i=0;i<n;i++){
+  const pId=locks[i].P,cId=locks[i].C;
+  const playerName=id=>players.find(p=>p.id===id)?.name||team().players.find(p=>p.id===id)?.name||'Unknown player';
+  if(pId&&cId&&pId===cId){alert(`Inning ${i+1}: ${playerName(pId)} is assigned to both pitcher and catcher. Choose two different players. No changes made.`);return}
+  for(const [position,id] of Object.entries(locks[i])){
+   if(!id)continue;
+   if(!players.some(p=>p.id===id)){
+    alert(`Inning ${i+1}: ${playerName(id)} is selected at ${position} but is not on this game's active roster. Add the player to the game roster or change the pitching plan. No changes made.`);return;
+   }
+  }
+ }
+ // A coach's explicit P/C selection is authoritative, even if the player's
+ // roster eligibility checkboxes omit P or C. Never silently ignore the plan.
+ // Match the remaining players to defensive positions, trying constrained positions first.
+ function positionMatch(i,bench){const d={...Object.fromEntries(Object.entries(locks[i]).filter(([,id])=>id))},used=new Set(Object.values(d));const remaining=POS.filter(pos=>!d[pos]);const available=players.filter(p=>!bench.has(p.id)&&!used.has(p.id));if(available.length!==remaining.length)return null;
+  function match(todo,free){if(!todo.length)return true;let best=todo[0],opts=[];for(const pos of todo){let choices=free.filter(p=>allowed(p,pos));if(choices.length<opts.length||!opts.length){best=pos;opts=choices}}if(!opts.length)return false;opts.sort((a,b)=>a.positions==='ALL'?1:b.positions==='ALL'?-1:0);for(const p of opts){d[best]=p.id;if(match(todo.filter(x=>x!==best),free.filter(x=>x.id!==p.id)))return true;delete d[best]}return false}
+  return match(remaining,available)?d:null}
+ const sit=Object.fromEntries(players.map(p=>[p.id,0]));let result=null,nodes=0;const maxNodes=100000;
+ function search(i,plans){if(++nodes>maxNodes)return false;if(i===n){if(fixed.some(p=>sit[p.id]!==Number(targets[p.id])))return false;result=plans.slice();return true}
+  const left=n-i,locked=new Set(Object.values(locks[i]).filter(Boolean));
+  for(const p of fixed){let rem=Number(targets[p.id])-sit[p.id];if(rem<0||rem>left)return false;if(rem===left&&locked.has(p.id))return false}
+  const forced=fixed.filter(p=>Number(targets[p.id])-sit[p.id]===left).map(p=>p.id);
+  if(forced.length>benchCount||forced.some(id=>locked.has(id)))return false;
+  const pool=players.filter(p=>!locked.has(p.id)&&!forced.includes(p.id));const need=benchCount-forced.length,candidates=[];
+  function combinations(start,ids){if(ids.length===need){let bench=new Set([...forced,...ids]);for(const p of fixed)if(bench.has(p.id)&&sit[p.id]>=Number(targets[p.id]))return;let score=0;for(const p of players){let newSit=sit[p.id]+(bench.has(p.id)?1:0),target=targets[p.id];if(target!==undefined){let remaining=Number(target)-newSit;if(remaining<0||remaining>n-i-1)return;score+=Math.abs(remaining-(n-i-1)*benchCount/players.length)*2}else score+=newSit*newSit*2; if(g.frequency===2&&i%2===1&&plans.length){let wasBench=!Object.values(plans[i-1]).includes(p.id);if(wasBench!==bench.has(p.id))score+=5}}
+    candidates.push({bench,score});return}for(let j=start;j<=pool.length-(need-ids.length);j++)combinations(j+1,[...ids,pool[j].id])}
+  combinations(0,[]);candidates.sort((a,b)=>a.score-b.score);
+  for(const candidate of candidates.slice(0,Math.min(180,candidates.length))){let d=positionMatch(i,candidate.bench);if(!d)continue;for(const id of candidate.bench)sit[id]++;plans.push(d);if(search(i+1,plans))return true;plans.pop();for(const id of candidate.bench)sit[id]--}
+  return false}
+ if(!search(0,[])){alert('Could not complete the remaining defensive positions around your pitcher/catcher assignments. Check the other players’ eligible positions and exact sitting targets. No changes made.');return}
+ g.defense=Object.fromEntries(result.map((d,i)=>[i,d]));save();renderDefense();
+}
+$('addTeam').onclick=()=>{let name=$('teamName').value.trim();if(!name)return alert('Enter a team name');let t={id:uid(),name,grade:$('grade').value,players:[],games:[]};state.teams.push(t);state.teamId=t.id;$('teamName').value='';save();renderTeams()};
+$('deleteTeam').onclick=()=>{if(state.teams.length===1)return alert('Keep at least one team');if(!confirm('Delete this team and its roster?'))return;state.teams=state.teams.filter(t=>t.id!==state.teamId);state.teamId=state.teams[0].id;save();renderTeams()};
+$('team').onchange=e=>{state.teamId=e.target.value;save();renderTeams()};
+$('addPlayer').onclick=()=>{let name=$('playerName').value.trim(),positions=newPlayerPositions;if(!name)return alert('Enter player name');team().players.push({id:uid(),name,number:$('jersey').value,positions:positions||'ALL'});$('playerName').value='';$('jersey').value='';newPlayerPositions='ALL';renderAddPositions();save();renderRoster();renderGame();renderHistory()};
+$('rosterBody').onchange=e=>{let p=team().players.find(p=>p.id===e.target.dataset.id);if(p&&e.target.dataset.field){p[e.target.dataset.field]=e.target.value;save();renderGame();renderHistory()}};
+$('rosterBody').onclick=e=>{let id=e.target.dataset.remove;if(id&&confirm('Remove player?')){team().players=team().players.filter(p=>p.id!==id);save();renderRoster();renderGame();renderHistory()}};
+for(let id of ['gameName','innings','frequency','maxSit'])$(id).onchange=e=>{currentGame[id==='gameName'?'name':id]=['innings','maxSit'].includes(id)?Number(e.target.value):e.target.value;save();renderGame();renderHistory()};
+$('battingBody').onchange=e=>{let i=Number(e.target.dataset.battingSlot);if(e.target.dataset.battingSlot===undefined)return;let j=currentGame.batting.indexOf(e.target.value);if(j<0||i===j)return;[currentGame.batting[i],currentGame.batting[j]]=[currentGame.batting[j],currentGame.batting[i]];save();renderGame();renderHistory()};
+$('summaryBody').onchange=e=>{let id=e.target.dataset.sitTarget;if(!id)return;currentGame.sitTargets??={};if(e.target.value==='')delete currentGame.sitTargets[id];else currentGame.sitTargets[id]=Math.max(0,Math.min(currentGame.innings,Number(e.target.value)));save();renderDefense()};
+$('battingBody').onclick=e=>{let i=Number(e.target.dataset.move),dir=Number(e.target.dataset.dir);if(!e.target.dataset.move)return;let j=i+dir;if(j<0||j>=currentGame.batting.length)return;[currentGame.batting[i],currentGame.batting[j]]=[currentGame.batting[j],currentGame.batting[i]];save();renderGame();renderHistory()};
+function applyPitchCatchPlan(){
+ const g=currentGame;
+ for(let i=0;i<g.innings;i++){
+  const d=g.defense[i]??={};
+  for(const [pos,id] of [['P',g.pitch[i]||''],['C',g.catchers[i]||'']]){
+   if(!id)continue
+   // The pitching/catching plan takes priority over generated or manual positions.
+   for(const other of POS)if(other!==pos&&d[other]===id)delete d[other];
+   d[pos]=id;
+  }
+ }
+}
+$('pitchBody').onchange=e=>{
+ let el=e.target;
+ if(el.dataset.pitch!==undefined)currentGame.pitch[el.dataset.pitch]=el.value;
+ if(el.dataset.catch!==undefined)currentGame.catchers[el.dataset.catch]=el.value;
+ const inning=Number(el.dataset.pitch!==undefined?el.dataset.pitch:el.dataset.catch);
+ if(currentGame.pitch[inning]&&currentGame.pitch[inning]===currentGame.catchers[inning]){
+  const id=currentGame.pitch[inning];const name=team().players.find(p=>p.id===id)?.name||'This player';
+  alert(`Inning ${inning+1}: ${name} cannot pitch and catch in the same inning. Please change one assignment.`);
+ }
+ applyPitchCatchPlan();
+ save();renderDefense();
+};
+$('defenseTable').onchange=e=>{let {inning,pos}=e.target.dataset;if(inning===undefined)return;currentGame.defense[inning]??={};currentGame.defense[inning][pos]=e.target.value;save();renderDefense()};
+function fitPrintCells(){
+ const sheet=$('printSheet');
+ sheet.querySelectorAll('.print-fit-name').forEach(el=>{
+  const cell=el.closest('td');if(!cell)return;
+  el.style.fontSize='7.5pt';
+  el.style.setProperty('--fit-scale','1');
+  const available=Math.max(10,cell.clientWidth-2);
+  const natural=el.scrollWidth;
+  const scale=Math.min(1,available/Math.max(1,natural));
+  el.style.setProperty('--fit-scale',String(scale));
+ });
+ sheet.querySelectorAll('.print-sit-item').forEach(el=>{
+  const cell=el.closest('td');if(!cell)return;
+  el.style.fontSize='7pt';
+  el.style.setProperty('--fit-scale','1');
+  const available=Math.max(10,cell.clientWidth-6);
+  const natural=el.scrollWidth;
+  el.style.setProperty('--fit-scale',String(Math.min(1,available/Math.max(1,natural))));
+ });
+}
+function buildPrintSheet(){
+const g=currentGame,t=team(),players=gamePlayers();
+const name=id=>players.find(p=>p.id===id)?.name||'—';
+const short=id=>{const n=name(id);return n==='—'?n:n.trim().split(/\s+/).slice(-1)[0]};
+const safe=escapeHTML;
+const fitName=(value,isSitting=false)=>{const text=String(value||'—');if(isSitting){const items=text.split(/,\s*/).filter(Boolean);return `<span class="print-sit-names">${items.map(item=>`<span class="print-sit-item">${safe(item)}</span>`).join('<span class="print-sit-comma">, </span>')}</span>`;}return `<span class="print-fit-name">${safe(text)}</span>`};
+const batting=(g.batting||[]).filter(id=>players.some(p=>p.id===id));
+const battingColumn=slots=>slots.map(i=>`<p><span class="batting-number">${i+1}.</span><span class="batting-name">${batting[i]?safe(name(batting[i])):"&nbsp;"}</span></p>`).join('');
+const leftSlots=Array.from({length:7},(_,i)=>i);
+const rightSlots=Array.from({length:6},(_,i)=>i+7);
+const rotation=`<table class="print-rotation"><thead><tr>${['INN',...POS,'SITTING'].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${Array.from({length:g.innings},(_,i)=>{const d=g.defense[i]||{};const sitting=players.filter(p=>!Object.values(d).includes(p.id)).map(p=>short(p.id)).join(', ')||'—';return `<tr><td>${i+1}</td>${POS.map(pos=>`<td>${fitName(short(d[pos]))}</td>`).join('')}<td>${fitName(sitting,true)}</td></tr>`}).join('')}</tbody></table>`;
+$('printSheet').innerHTML=`<h1 class="print-team">${safe(t.name)}</h1>${rotation}<h2 class="print-batting-title">BATTING ORDER</h2><div class="print-batting"><div>${battingColumn(leftSlots)}</div><div>${battingColumn(rightSlots)}</div></div>`;
+fitPrintCells();
+}
+window.addEventListener('beforeprint',fitPrintCells);$('generate').onclick=generate;$('print').onclick=()=>{buildPrintSheet();window.print()};
+$('exportData').onclick=()=>{let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fca-lineup-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('importData').onclick=()=>$('backupFile').click();$('backupFile').onchange=async e=>{try{let s=JSON.parse(await e.target.files[0].text());if(!Array.isArray(s.teams))throw Error('Invalid backup');if(confirm('Replace all local teams with this backup?')){state=s;save();renderTeams()}}catch(err){alert(err.message)}};
+$('csvButton').onclick=()=>$('csvFile').click();
+$('csvFile').onchange=async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  const text=(await file.text()).replace(/^\uFEFF/,'');
+  const parseCSV=text=>{let rows=[],row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted;}else if(c===','&&!quoted){row.push(cell);cell='';}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell='';}else cell+=c;}row.push(cell);if(row.some(v=>v.trim()))rows.push(row);return rows;};
+  const rows=parseCSV(text);if(rows.length<2)throw Error('CSV has no player rows.');
+  const head=rows[0].map(v=>v.trim().toLowerCase().replace(/[^a-z0-9]/g,''));
+  const idx=(...names)=>head.findIndex(h=>names.includes(h));
+  const n=idx('name','player','playername','fullname'),f=idx('first','firstname'),l=idx('last','lastname','surname'),num=idx('number','jersey','jerseynumber'),pos=idx('positions','position','eligiblepositions');
+  if(n<0&&f<0)throw Error('CSV must have Name or First and Last columns.');
+  const incoming=rows.slice(1).map(r=>({name:(n>=0?(r[n]||''):[r[f]||'',l>=0?r[l]||'':''].filter(Boolean).join(' ')).trim(),number:num>=0?(r[num]||'').trim():'',positions:pos>=0?(r[pos]||'ALL').trim().toUpperCase():'ALL'})).filter(p=>p.name);
+  const existing=new Set(team().players.map(p=>p.name.trim().toLowerCase()));
+  const fresh=incoming.filter(p=>{let k=p.name.toLowerCase();if(existing.has(k))return false;existing.add(k);return true;});
+  const skipped=incoming.length-fresh.length;
+  if(!fresh.length){alert(`No new players to import. ${skipped} existing or duplicate names skipped.`);return;}
+  if(!confirm(`Import ${fresh.length} player(s) into ${team().name}? ${skipped} duplicate(s) skipped. Positions default to ALL when not provided.`))return;
+  for(const p of fresh)team().players.push({id:uid(),...p});
+  save();renderRoster();renderGame();renderHistory();
+  if(cloudReady){clearTimeout(cloudTimer);await cloudSave(true);alert(`Imported ${fresh.length} player(s) into ${team().name}. Check the green cloud confirmation before leaving.`)}
+  else alert(`Imported ${fresh.length} player(s) locally. Sign in to sync to other coaches.`);
+ }catch(err){alert('Roster import failed: '+err.message)}finally{e.target.value='';}
+};
+
+
+// Immutable dated game snapshots. Store on each team so existing Supabase workspace syncs them.
+function historyEntries(){return team()?.history||[]}
+let editingArchiveId=null;
+function gameSnapshot(){const g=currentGame;const ps=gamePlayers();return {id:uid(),date:$('historyDate').value,name:g.name,innings:g.innings,players:ps.map(p=>({id:p.id,name:p.name,number:p.number,positions:p.positions})),batting:[...g.batting],pitch:structuredClone(g.pitch||{}),catchers:structuredClone(g.catchers||{}),defense:structuredClone(g.defense||{}),selectedPlayers:ps.map(p=>p.id),sitTargets:structuredClone(g.sitTargets||{}),frequency:g.frequency,maxSit:g.maxSit,savedAt:new Date().toISOString()}}
+function sittingRecords(g){return (g.players||[]).map(p=>{const sits=[];for(let i=0;i<g.innings;i++){const assigned=Object.values(g.defense?.[i]||{}).filter(Boolean);if(!assigned.includes(p.id))sits.push(i+1)}return {date:g.date,game:g.name,player:p.name,playerId:p.id,played:g.innings-sits.length,sit:sits.length,innings:sits.join(', ')||'—',archiveId:g.id}})}
+function filteredHistory(){const from=$('reportFrom').value,to=$('reportTo').value;return historyEntries().flatMap(sittingRecords).filter(r=>(!from||r.date>=from)&&(!to||r.date<=to)).sort((a,b)=>b.date.localeCompare(a.date)||a.player.localeCompare(b.player))}
+function renderHistory(){if(!$('historyRows'))return;renderSavedGames();const rows=filteredHistory(),totals=new Map();for(const r of rows){let t=totals.get(r.playerId)||{name:r.player,games:0,sit:0};t.games++;t.sit+=r.sit;totals.set(r.playerId,t)}$('historyRows').innerHTML=[...totals.values()].sort((a,b)=>a.name.localeCompare(b.name)).map(t=>`<tr><td>${escapeHTML(t.name)}</td><td>${t.games}</td><td><strong>${t.sit}</strong></td></tr>`).join('')||'<tr><td colspan="3">No saved games match these dates.</td></tr>';$('reportTotals').textContent=`${new Set(rows.map(r=>r.archiveId)).size} games · ${totals.size} players · ${rows.reduce((n,r)=>n+r.sit,0)} combined sitting innings`}
+function renderSavedGames(){const entries=[...historyEntries()].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.savedAt||'').localeCompare(String(a.savedAt||'')));$('savedGamesRows').innerHTML=entries.map(g=>`<tr><td>${escapeHTML(g.date||'—')}</td><td>${escapeHTML(g.name||'Unnamed Game')}</td><td>${(g.players||[]).length}</td><td>${g.innings||'—'}</td><td>${escapeHTML(g.savedAt?new Date(g.savedAt).toLocaleString():'—')}</td><td><button data-open-archive="${escapeHTML(g.id)}">Open / Edit</button> <button class="danger" data-delete-archive="${escapeHTML(g.id)}">Delete</button></td></tr>`).join('')||'<tr><td colspan="6">No saved games for this team.</td></tr>';$('manageGames').textContent=`${$('savedGamesPanel').hidden?'Manage Saved Games':'Hide Saved Games'} (${entries.length})`}
+$('manageGames').onclick=()=>{$('savedGamesPanel').hidden=!$('savedGamesPanel').hidden;renderSavedGames()};
+$('openSavedGames').onclick=()=>{$('savedGamesPanel').hidden=false;renderSavedGames();$('savedGamesPanel').scrollIntoView({behavior:'smooth',block:'start'});};
+$('savedGamesRows').onclick=e=>{const open=e.target.closest('[data-open-archive]');if(open){const g=historyEntries().find(x=>x.id===open.dataset.openArchive);if(!g)return;const missing=(g.selectedPlayers||[]).filter(id=>!team().players.some(p=>p.id===id));if(missing.length&&!confirm(`${missing.length} players from this saved game are no longer in the team roster. Their assignments may be unavailable. Open anyway?`))return;currentGame=restoreSavedGame(g);team().games=[currentGame];editingArchiveId=g.id;$('historyDate').value=g.date||'';renderGame();save();$('historyStatus').textContent=`Editing saved game: ${g.name}. Click Save Game to update this record.`;$('gameName').scrollIntoView({behavior:'smooth',block:'center'});return;}const btn=e.target.closest('[data-delete-archive]');if(!btn)return;const id=btn.dataset.deleteArchive;const g=historyEntries().find(x=>x.id===id);if(!g)return;if(!confirm(`Permanently delete saved game "${g.name||'Unnamed Game'}" on ${g.date||'unknown date'}? This removes its sitting statistics.`))return;team().history=historyEntries().filter(x=>x.id!==id);save();renderSavedGames();if(!$('reportOutput').hidden)renderHistory();if(editingArchiveId===id)editingArchiveId=null;$('historyStatus').textContent='Game deleted. Changes will sync to cloud when connected.'};
+$('runSitReport').onclick=()=>{$('reportOutput').hidden=false;renderHistory()};
+$('historyDate').value=new Date().toLocaleDateString('en-CA');
+$('newGame').onclick=()=>{if(!confirm('Start a new game? Save your current game first if you want to keep its changes.'))return;editingArchiveId=null;const t=team();currentGame={id:uid(),name:'New Game',innings:7,frequency:1,maxSit:2,batting:t.players.slice(0,13).map(p=>p.id),pitch:{},catchers:{},defense:{},selectedPlayers:t.players.slice(0,13).map(p=>p.id),sitTargets:{}};t.games=[currentGame];$('historyDate').value=new Date().toLocaleDateString('en-CA');$('historyStatus').textContent='New game — saving will create a separate record.';save();renderGame();};
+$('archiveGame').onclick=async()=>{if(!cloudReady)return alert('Sign in to shared cloud before saving game history.');if(!$('historyDate').value)return alert('Choose a game date.');if(!gamePlayers().length)return alert('Select game players first.');const g=currentGame;const missing=Array.from({length:g.innings},(_,i)=>POS.filter(pos=>!g.defense?.[i]?.[pos])).flat();if(missing.length&&!confirm(`There are ${missing.length} unassigned defensive positions. Save this game anyway?`))return;team().history??=[];const snap=gameSnapshot();const existing=editingArchiveId?team().history.find(x=>x.id===editingArchiveId):null;if(!existing&&team().history.some(x=>x.date===snap.date&&String(x.name||'').trim().toLowerCase()===String(snap.name||'').trim().toLowerCase())){if(!confirm('A game with this exact name and date already exists. Save as a separate game anyway?'))return;}if(existing){if(!confirm(`Update the saved game "${existing.name}" (${existing.date}) with your current changes? Cancel will keep the previous game and NOT save a duplicate.`))return;snap.id=existing.id;team().history=team().history.map(x=>x.id===existing.id?snap:x)}else team().history.push(snap);editingArchiveId=snap.id;save();renderSavedGames();if(!$('reportOutput').hidden)renderHistory();$('historyStatus').textContent=`Saving ${snap.name} (${snap.date}) to shared cloud…`;
+ clearTimeout(cloudTimer);
+ await cloudSave(true);
+ if(!cloudDirty&&cloudReady){$('historyStatus').textContent=`Saved and synced: ${snap.name} (${snap.date}), ${snap.players.length} players. All ${snap.innings} defensive innings retained.`;}
+ else{$('historyStatus').textContent=`NOT CONFIRMED IN CLOUD: ${snap.name}. Your game is backed up in this browser; use Save to Cloud and check connection before leaving.`;alert('Game saved on this device, but cloud sync was NOT confirmed. Do not close the app until cloud status says synced.');}};
+for(const id of ['reportFrom','reportTo'])$(id).onchange=()=>{if(!$('reportOutput').hidden)renderHistory()};
+$('exportHistory').onclick=()=>{const rows=filteredHistory(),totals=new Map();for(const r of rows){let t=totals.get(r.playerId)||{name:r.player,games:0,sit:0};t.games++;t.sit+=r.sit;totals.set(r.playerId,t)}if(!totals.size)return alert('No saved games match these dates');const csv=[['Player','Games','Total Sitting Innings'],...[...totals.values()].sort((a,b)=>a.name.localeCompare(b.name)).map(t=>[t.name,t.games,t.sit])].map(row=>row.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='FCA_Sitting_Totals.csv';a.click();URL.revokeObjectURL(a.href)};
+
+// Connection details and refresh credentials persist across app updates on the same origin.
+let CLOUD_DEFAULT={url:'',key:''};
+const cloudConfig=()=>CLOUD_DEFAULT;
+const cloudHeaders=()=>{let c=cloudConfig();return {'apikey':c.key,'Authorization':'Bearer '+cloudToken,'Content-Type':'application/json'}};
+const SESSION_KEY='fca_sb_session_v20';
+function storeSession(v){
+ if(!v?.access_token)return;
+ cloudToken=v.access_token;cloudReady=true;
+ const prev=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');
+ const session={access_token:v.access_token,refresh_token:v.refresh_token||prev.refresh_token,expires_at:Date.now()+(Number(v.expires_in)||3600)*1000};
+ localStorage.setItem(SESSION_KEY,JSON.stringify(session));
+ sessionStorage.setItem('fca_token',cloudToken);
+}
+function disconnect(message){cloudReady=false;cloudToken=null;cloudMessage(message||'Not connected. Sign in to sync changes.');$('status').textContent='NOT SYNCED — sign in to share'}
+async function authRequest(path,body){let c=cloudConfig();if(!c.url||!c.key)throw Error('Connection settings missing. Ask the administrator to configure this browser once.');let r=await fetch(c.url+'/auth/v1/'+path,{method:'POST',headers:{'apikey':c.key,'Content-Type':'application/json'},body:JSON.stringify(body)});let v=await r.json();if(!r.ok)throw Error(v.msg||v.error_description||v.message||'Authentication failed');return v}
+function cloudMessage(message,ok=false){$('cloudStatus').className=ok?'success':'warning';$('cloudStatus').textContent=message}
+async function refreshSession(){
+ if(cloudRefreshPromise)return cloudRefreshPromise;
+ cloudRefreshPromise=(async()=>{
+  const saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');
+  if(!saved.refresh_token)throw Error('Session expired. Sign in again.');
+  const v=await authRequest('token?grant_type=refresh_token',{refresh_token:saved.refresh_token});
+  storeSession(v);return true;
+ })();
+ try{return await cloudRefreshPromise}finally{cloudRefreshPromise=null}
+}
+async function cloudFetch(path,opts={}){
+ const c=cloudConfig();
+ const request=()=>fetch(c.url+'/rest/v1/'+path,{...opts,headers:{...cloudHeaders(),...(opts.headers||{})}});
+ let r=await request();
+ if(r.status===401||r.status===403){await refreshSession();r=await request()}
+ return r;
+}
+async function cloudSave(show=true){
+ if(!cloudReady){cloudMessage('Not connected — changes are only on this device. Sign in to sync.');return}
+ if(cloudBusy){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudSave(show),1100);return}
+ cloudBusy=true;
+ const snapshot=JSON.stringify(state);
+ try{
+  let payload={id:1,data:JSON.parse(snapshot),updated_at:new Date().toISOString()};
+  let r=await cloudFetch('fca_workspace?on_conflict=id',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(payload)});
+  if(!r.ok)throw Error((await r.text()).slice(0,250));
+  if(JSON.stringify(state)===snapshot)cloudDirty=false;
+  $('status').textContent=cloudDirty?'Saving new changes…':'Synced to cloud';
+  if(show||!cloudDirty)cloudMessage('Connected — team changes are synced to cloud.',true);
+  if(cloudDirty){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>cloudSave(false),500)}
+ }catch(e){
+  if(/session expired|refresh|jwt|401|403/i.test(e.message))disconnect('Session expired. Sign in again. Changes remain on this device until synced.');
+  else cloudMessage('Cloud save failed — changes NOT synced: '+e.message);
+  $('status').textContent='NOT SYNCED — changes saved on this device';
+ }finally{cloudBusy=false}
+}
+async function cloudLoad(){
+ if(!cloudReady)return cloudMessage('Sign in first');
+ if(cloudDirty)return cloudMessage('Unsynced changes on this device. Save to Cloud before refreshing shared teams.');
+ try{
+  let r=await cloudFetch('fca_workspace?id=eq.1&select=data');
+  if(!r.ok)throw Error((await r.text()).slice(0,250));
+  let rows=await r.json();
+  if(rows.length&&rows[0].data&&Array.isArray(rows[0].data.teams)){
+   state=rows[0].data;localStorage.setItem(KEY,JSON.stringify(state));renderTeams();
+   $('status').textContent='Synced to cloud';cloudMessage('Connected — shared team rosters loaded.',true)
+  }else cloudMessage('Connected. Shared workspace is empty; use Save to Cloud to initialize.',true)
+ }catch(e){
+  if(/session expired|refresh|jwt|401|403/i.test(e.message))disconnect('Session expired. Sign in again.');
+  else cloudMessage('Cloud load failed: '+e.message)
+ }
+}
+async function login(mode){
+ try{
+  let email=$('coachEmail').value.trim(),password=$('coachPassword').value;
+  if(!email||!password)return cloudMessage('Enter email and password');
+  let v=await authRequest(mode==='signup'?'signup':'token?grant_type=password',{email,password});
+  $('coachPassword').value='';
+  if(v.access_token){storeSession(v);cloudMessage('Signed in. Connecting to shared teams…',true);if(cloudDirty){cloudMessage('Signed in. Unsynced local edits detected — review before saving to cloud.');}else await cloudLoad()}
+  else cloudMessage('Account created. Confirm your email, then sign in.',true)
+ }catch(e){cloudMessage(e.message)}
+}
+$('signIn').onclick=()=>login('signin');$('signUp').onclick=()=>login('signup');
+$('signOut').onclick=()=>{
+ if(cloudDirty&&!confirm('There are unsynced changes on this device. Sign out anyway?'))return;
+ cloudReady=false;cloudToken=null;localStorage.removeItem(SESSION_KEY);sessionStorage.removeItem('fca_token');
+ disconnect('Signed out. Sign in to sync changes.')
+};
+$('cloudSave').onclick=()=>cloudSave(true);$('cloudLoad').onclick=cloudLoad;
+window.addEventListener('beforeunload',e=>{if(cloudDirty){e.preventDefault();e.returnValue=''}});
+window.addEventListener('online',()=>{if(cloudReady&&cloudDirty)cloudSave(false)});
+async function restoreCloud(){
+ try{
+  const c=cloudConfig();
+  // Project connection is embedded; no browser-specific setup required.
+  const saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');
+  if(saved.access_token){cloudToken=saved.access_token;cloudReady=true;
+   if(saved.expires_at<Date.now()+120000)await refreshSession();
+   if(cloudDirty){cloudMessage('Signed in. Unsynced local edits detected — review before saving to cloud.');}else await cloudLoad();return}
+  const legacy=sessionStorage.getItem('fca_token');
+  if(legacy){cloudToken=legacy;cloudReady=true;await cloudLoad();return}
+  disconnect('Connection remembered. Sign in to access shared teams.');
+ }catch(e){disconnect('Could not reconnect automatically. Sign in again; local data is preserved.')}
+}
+window.addEventListener('message',async event=>{
+ if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='FCA_HQ_SESSION')return;
+ try{const r=await fetch('/api/public-config',{cache:'no-store'});if(!r.ok)throw Error('Database settings unavailable');const cfg=await r.json();if(!cfg.configured)throw Error('Database connection not configured');CLOUD_DEFAULT={url:cfg.url,key:cfg.key};storeSession(event.data);if(cloudDirty){cloudMessage('Local changes are not yet synced. Review before saving to cloud.')}else await cloudLoad();}
+ catch(e){cloudMessage('Cloud connection failed: '+e.message)}
+});
+// Refresh proactively so a coach working for hours stays connected.
+setInterval(async()=>{
+ if(!cloudReady)return;
+ try{const saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');if(saved.refresh_token&&saved.expires_at<Date.now()+180000)await refreshSession()}
+ catch(e){disconnect('Session expired. Sign in again to resume cloud syncing.')}
+},60000);
+renderTeams();
+
+renderAddPositions();
+</script></body></html>
