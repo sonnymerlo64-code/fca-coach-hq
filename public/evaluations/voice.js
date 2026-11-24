@@ -6,4 +6,19 @@ v('Generate').onclick=run(async()=>{if(!audio||!v('Player').value)throw Error('S
 async function save(submit){if(!v('Player').value||!v('Report').value.trim())throw Error('Player and evaluation required');const row={player_id:v('Player').value,transcript:v('Transcript').value,report:v('Report').value,parent_email:v('Email').value.trim()};if(selected){check(await db.from('pd_voice_evaluations').update({...row,...(submit?{status:'pending'}:{})}).eq('id',selected))}else{const r=check(await db.from('pd_voice_evaluations').insert(row).select().single());selected=r.id;if(submit)check(await db.from('pd_voice_evaluations').update({status:'pending'}).eq('id',selected))}status(submit?'Submitted for approval':'Draft saved');await list()}
 v('Save').onclick=run(()=>save(false));v('Submit').onclick=run(()=>save(true));
 async function list(){const rows=check(await db.from('pd_voice_evaluations').select('*').order('created_at',{ascending:false}));v('List').replaceChildren();for(const r of rows){const box=document.createElement('div');box.className='card';const p=players.find(p=>String(p.id)===r.player_id);box.textContent=(p?fullName(p):r.player_id)+' — '+r.status+' ';const btn=(label,fn)=>{const b=document.createElement('button');b.textContent=label;b.onclick=run(fn);box.append(b)};btn('View',()=>{selected=r.id;v('Player').value=r.player_id;v('Transcript').value=r.transcript;v('Report').value=r.report;v('Email').value=r.parent_email});if(isAdmin&&r.status==='pending'){btn('Return',async()=>{check(await db.from('pd_voice_evaluations').update({status:'returned'}).eq('id',r.id));await list()});btn('Approve',async()=>{if(selected!==r.id)throw Error('View and review this evaluation first');if(!v('Email').checkValidity()||!v('Email').value)throw Error('Enter a valid parent email');if(!confirm('Approve this evaluation for parent delivery?'))return;check(await db.from('pd_voice_evaluations').update({report:v('Report').value,parent_email:v('Email').value,status:'approved'}).eq('id',r.id).eq('status','pending'));await list()})}if(isAdmin&&r.status==='approved')btn('Send Email',async()=>{if(!confirm('Send approved email to '+r.parent_email+'?'))return;const f=new FormData();f.append('action','send');f.append('id',r.id);await api(f);status('Email accepted for delivery');await list()});v('List').append(box)}}
+
+const transfer=document.createElement('button');
+transfer.type='button';
+transfer.textContent='Copy Notes into Detailed Evaluation';
+transfer.title='Copies the AI report as notes; a coach must still enter and verify 1–5 skill ratings.';
+v('Report').insertAdjacentElement('afterend',transfer);
+transfer.onclick=run(async()=>{
+ if(!v('Player').value || !v('Report').value.trim())throw Error('Choose a player and generate or open a report first');
+ setTab('evaluation');
+ $('evalPlayer').value=v('Player').value;
+ $('coachNotes').value=v('Report').value;
+ setEvalMode('detailed');
+ status('Notes copied. Enter and verify 1–5 ratings before saving the standard evaluation.');
+ message('Voice notes copied. Enter 1–5 ratings manually before saving.');
+});
 })();
