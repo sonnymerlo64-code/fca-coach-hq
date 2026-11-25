@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 370" role="img" aria-label="FCA Coach HQ, Baseball San Diego">
+<rect width="760" height="370" fill="#050505"/>
+<g transform="translate(260 0) scale(.75)">
+<rect width="320" height="320" fill="#050505" rx="48"/>
+<path d="M160 28 269 68V187L160 286 51 187V68Z" fill="#050505" stroke="#FFCD00" stroke-width="13" stroke-linejoin="round"/>
+<path d="M89 131A72 72 0 0 1 231 131" fill="none" stroke="#FFCD00" stroke-width="7"/>
+<g fill="none" stroke="#FFCD00" stroke-width="7" stroke-linecap="round"><path d="M120 69Q103 100 120 130M200 69Q217 100 200 130"/><path d="m108 79 24 12m-28 6 30 12m-29 7 26 11m81-48-24 12m28 6-30 12m29 7-26 11"/></g>
+<path d="M60 145h200v73H60z" fill="#050505"/>
+<text x="160" y="208" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-style="italic" font-size="92" letter-spacing="-9" fill="#fff">FCA</text>
+<path d="M76 223Q158 210 244 225" fill="none" stroke="#FFCD00" stroke-width="8" stroke-linecap="round"/>
+<path d="m160 243 5 14 15 0-12 9 4 14-12-9-12 9 4-14-12-9 15 0z" fill="#FFCD00"/>
+</g>
+<text x="380" y="285" font-family="Arial Black,Arial,sans-serif" font-style="italic" font-weight="900" font-size="55" letter-spacing="-3" text-anchor="middle"><tspan fill="#fff">FCA COACH </tspan><tspan fill="#FFCD00">HQ</tspan></text>
+<path d="M70 322H155M605 322H690" stroke="#FFCD00" stroke-width="4"/>
+<text x="380" y="329" fill="#fff" font-family="Arial,sans-serif" font-weight="700" font-size="22" letter-spacing="7" text-anchor="middle">BASEBALL SAN DIEGO</text>
+</svg>
