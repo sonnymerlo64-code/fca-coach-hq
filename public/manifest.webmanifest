@@ -1,0 +1,24 @@
+{
+  "name": "FCA Coach HQ | Baseball San Diego",
+  "short_name": "FCA Coach HQ",
+  "description": "FCA Baseball San Diego coaching tools",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#FFCD00",
+  "icons": [
+    {
+      "src": "/coach-hq-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
